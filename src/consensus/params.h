@@ -7,6 +7,7 @@
 #define BITCOIN_CONSENSUS_PARAMS_H
 
 #include <uint256.h>
+#include <consensus/amount.h>
 
 #include <array>
 #include <chrono>
@@ -118,6 +119,8 @@ struct Params {
     bool fPowNoRetargeting;
     int64_t nPowTargetSpacing;
     int64_t nPowTargetTimespan;
+    /** Difficulty will reset every nDifficultyChangeCoins mined */
+    CAmount nDifficultyChangeCoins{0};
     std::chrono::seconds PowTargetSpacing() const
     {
         return std::chrono::seconds{nPowTargetSpacing};
