@@ -9,12 +9,26 @@
 #include <chain.h>
 #include <primitives/block.h>
 #include <uint256.h>
+#include <consensus/amount.h>
 #include <util/check.h>
+#include <validation.h>
 
+static CAmount TotalMinedCoins(int height, const Consensus::Params& params)
+{
+    CAmount total = 0;
+    for (int i = 0; i <= height; ++i) {
+        total += GetBlockSubsidy(i, params);
+    }
+    return total;
+}
 unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
 {
     assert(pindexLast != nullptr);
     unsigned int nProofOfWorkLimit = UintToArith256(params.powLimit).GetCompact();
+
+    if (TotalMinedCoins(pindexLast->nHeight, params) >= params.nDifficultyChangeCoins * COIN) {
+        return nProofOfWorkLimit;
+    }
 
     // Only change once per difficulty adjustment interval
     if ((pindexLast->nHeight+1) % params.DifficultyAdjustmentInterval() != 0)
